@@ -3,6 +3,7 @@ CREATE SCHEMA IF NOT EXISTS config;
 CREATE SCHEMA IF NOT EXISTS data;
 
 -- Config: Stores reusable prompts for LLM actions
+DROP TABLE config.prompt;
 CREATE TABLE config.prompt (
     id SERIAL PRIMARY KEY,
     prompt_label VARCHAR NOT NULL,          -- e.g., 'message_classification'
@@ -11,22 +12,26 @@ CREATE TABLE config.prompt (
 );
 
 -- Config: Stores prompt parameters for LLM actions
+DROP TABLE config.prompt_parameter;
 CREATE TABLE config.prompt_parameter (
     id SERIAL PRIMARY KEY,
+	prompt_label VARCHAR NOT NULL,             -- e.g., 'message_classification'
     parameter_name VARCHAR NOT NULL,           -- e.g., 'client_name'
     description TEXT,                          -- human-readable explanation
-    required BOOLEAN DEFAULT TRUE,             -- is it mandatory for prompt execution?
+    is_required BOOLEAN DEFAULT TRUE,             -- is it mandatory for prompt execution?
     default_value TEXT                         -- fallback if not supplied at runtime
 );
 
 -- Config: Master list of possible actions (AI or Python)
+DROP TABLE config.action;
 CREATE TABLE config.action (
     action_label VARCHAR PRIMARY KEY,       -- e.g., 'classify_topic'
     description TEXT NOT NULL
 );
 
 -- Config: Actions implemented as AI LLM calls
-CREATE TABLE config.ai_llm_action (
+DROP TABLE config.action_ai_llm;
+CREATE TABLE config.action_ai_llm (
     action_label VARCHAR PRIMARY KEY,       -- symbolic name of the action
     ai_provider VARCHAR NOT NULL,           -- e.g., 'openai', 'perplexity'
     model_name VARCHAR NOT NULL,            -- e.g., 'gpt-4'
@@ -34,7 +39,8 @@ CREATE TABLE config.ai_llm_action (
 );
 
 -- Config: Actions implemented as deterministic Python functions
-CREATE TABLE config.python_action (
+DROP TABLE config.action_python;
+CREATE TABLE config.action_python (
     action_label VARCHAR PRIMARY KEY,       -- symbolic name of the action
     module_name VARCHAR NOT NULL,           -- e.g., 'myapp.enrichment.steps'
     function_name VARCHAR NOT NULL,         -- e.g., 'extract_dates'
@@ -43,11 +49,13 @@ CREATE TABLE config.python_action (
 );
 
 -- Config: Configuration of what action to take based on message type and status
+DROP TABLE config.process_step;
 CREATE TABLE config.process_step (
     id SERIAL PRIMARY KEY,
     message_type VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
-    action_label VARCHAR NOT NULL
+    action_label VARCHAR NOT NULL,
+    next_status VARCHAR NOT NULL
 );
 
 -- Data: Main table holding transcripted messages with hybrid schem
@@ -60,5 +68,7 @@ CREATE TABLE data.audio_message (
     status VARCHAR DEFAULT 'new',           -- processing state
     metadata JSONB DEFAULT '{}',            -- extra fields like timestamps, flags
     enrichment JSONB DEFAULT '{}',          -- results from enrichment steps
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+	is_failure BOOLEAN DEFAULT FALSE,
+	failure_at TIMESTAMP
 );
