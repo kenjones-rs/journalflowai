@@ -50,3 +50,9 @@ INSERT INTO config.prompt_parameter (
 ) VALUES
 (1, 'audio_message_metadata', 'transcript', 'audio transcript', TRUE, NULL),
 (2, 'audio_message_enrichment', 'transcript', 'audio transcript', TRUE, NULL);
+
+
+-- Insert data into config.transcriber
+INSERT INTO config.transcriber (provider, class_name, description, is_default) VALUES
+('google', 'GoogleTranscriber', 'Uses Google Web Speech API via SpeechRecognition package', TRUE),
+('openai', 'OpenAITranscriber', 'Uses OpenAI Whisper API or local Whisper model', FALSE);

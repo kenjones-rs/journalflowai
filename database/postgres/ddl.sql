@@ -58,6 +58,16 @@ CREATE TABLE config.process_step (
     next_status VARCHAR NOT NULL
 );
 
+DROP TABLE IF EXISTS config.transcriber;
+CREATE TABLE config.transcriber (
+    id SERIAL PRIMARY KEY,
+    provider VARCHAR NOT NULL,           -- e.g., 'google', 'openai'
+    class_name VARCHAR NOT NULL,         -- e.g., 'GoogleTranscriber'
+    description TEXT,
+    is_default BOOLEAN DEFAULT FALSE     -- mark one as default
+);
+
+
 -- Data: Main table holding transcripted messages with hybrid schem
 DROP TABLE data.audio_message;
 CREATE TABLE data.audio_message (
