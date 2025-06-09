@@ -10,13 +10,12 @@ class AudioMessageRepository(Repository):
     def get_pending_messages(self):
         return self.get_by_status("new")
 
-    def upsert(self, message_record):
-        self.upsert_record("audio_message", message_record)
+    def upsert(self, record):
+        self.upsert_record("audio_message", record)
 
     def update_status(self, message_id, new_status):
-        self.update_json_column(
-            table="audio_message",
-            key_columns={"id": message_id},
-            json_key="status",
-            json_value=new_status
+        self.db.execute_query(
+            "UPDATE data.audio_message SET status = %s WHERE id = %s",
+            (new_status, message_id)
         )
+
