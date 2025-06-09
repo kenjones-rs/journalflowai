@@ -156,31 +156,26 @@ if __name__ == "__main__":
     db = PostgresDatabase(postgres)
     repo = Repository(db)
 
-    # Parameters for test
-    schema = 'data'
-    table = 'audio_message'
-    id_column = 'id'
-    id_value = 1  # Use an existing ID in your table
-    json_column = 'metadata'
-    json_key = 'summary'
-    json_value = {
-        'value': 'This is my NEW summary',
-        'model': 'gpt-4',
-        'timestamp': '2025-06-01T17:55:00'
+
+    from cai_google_transcriber import GoogleTranscriber
+    from cai_openai_transcriber import WhisperTranscriber
+
+    TRANSCRIBER_REGISTRY = {
+        "GoogleTranscriber": GoogleTranscriber,
+        "WhisperTranscriber": WhisperTranscriber,
     }
-    mode = 'replace'  # or 'replace'
 
-    # Test call
+    filters = {'is_default': True}
+    result = repo.fetch_record(table='transcriber', filters=filters, schema='config')
 
-    with repo.transaction():
-        repo.update_json_key_with_version(
-            schema=schema,
-            table=table,
-            id_column=id_column,
-            id_value=id_value,
-            json_column=json_column,
-            json_key=json_key,
-            json_value=json_value,
-            mode=mode
-        )
+    if not result:
+        raise ValueError("No default transcriber found in config.transcriber")
+
+    class_name = result[0]['class_name']
+    print(class_name)
+
+    TranscriberClass = TRANSCRIBER_REGISTRY[class_name]
+    transcriber_instance = TranscriberClass()
+    transcript = transcriber_instance.transcribe('./audio/Ken Jones-20250526-163600.mp3')
+    print(transcript)
 

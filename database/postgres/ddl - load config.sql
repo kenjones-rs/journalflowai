@@ -53,6 +53,7 @@ INSERT INTO config.prompt_parameter (
 
 
 -- Insert data into config.transcriber
+TRUNCATE TABLE config.transcriber;
 INSERT INTO config.transcriber (provider, class_name, description, is_default) VALUES
-('google', 'GoogleTranscriber', 'Uses Google Web Speech API via SpeechRecognition package', TRUE),
-('openai', 'OpenAITranscriber', 'Uses OpenAI Whisper API or local Whisper model', FALSE);
+('google', 'GoogleTranscriber', 'Uses Google Web Speech API via SpeechRecognition package', FALSE),
+('openai', 'WhisperTranscriber', 'Uses OpenAI Whisper API or local Whisper model', TRUE);
