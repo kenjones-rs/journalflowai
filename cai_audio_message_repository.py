@@ -25,10 +25,6 @@ class AudioMessageRepository(Repository):
         audio_logger.info(f"Fetching audio_message by filename: {filename}")
         return self.fetch_record("audio_message_by_filename", {"filename": filename}, schema="data")
 
-    def get_pending_messages(self):
-        audio_logger.info("Fetching audio_messages with status 'new'")
-        return self.get_by_status("new")
-
     def upsert(self, record):
         audio_logger.info(f"Upserting audio_message with data: {record}")
         self.upsert_record("audio_message", record, schema="data")

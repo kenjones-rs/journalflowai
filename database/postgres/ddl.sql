@@ -82,3 +82,7 @@ CREATE TABLE data.audio_message (
 	is_failure BOOLEAN DEFAULT FALSE,
 	failure_at TIMESTAMP
 );
+
+ALTER TABLE data.audio_message
+ADD CONSTRAINT unique_filename UNIQUE (filename);
+

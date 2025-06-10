@@ -18,6 +18,12 @@ BEGIN
         COALESCE(p_status, 'new'),
         COALESCE(p_metadata, '{}'::jsonb),
         COALESCE(p_enrichment, '{}'::jsonb)
-    );
+    )
+    ON CONFLICT (filename) DO UPDATE SET
+        transcription = EXCLUDED.transcription,
+        message_type = EXCLUDED.message_type,
+        status = EXCLUDED.status,
+        metadata = EXCLUDED.metadata,
+        enrichment = EXCLUDED.enrichment;
 END;
 $$ LANGUAGE plpgsql;

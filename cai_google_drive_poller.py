@@ -60,6 +60,7 @@ class GoogleDrivePoller:
                 continue
 
             file_path = os.path.join(download_dir, filename)
+            file_path = f'{download_dir}/{filename}'
             self.download_file(file["id"], file_path)
 
             gdrive_logger.info("Inserting new audio file into database: %s", file_path)
