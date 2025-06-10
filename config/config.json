@@ -1,0 +1,6 @@
+{
+  "google_drive": {
+    "service_account_path": "./config/gdrive_service_account.json",
+    "folder_id": "1yz92mkSg9gwECyy8Ubtnhg2VEssgEZ-b"
+  }
+}

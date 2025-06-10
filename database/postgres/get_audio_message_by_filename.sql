@@ -1,6 +1,5 @@
-CREATE OR REPLACE FUNCTION data.get_audio_message_by_message_type_status(
-    p_message_type VARCHAR,
-    p_status VARCHAR
+CREATE OR REPLACE FUNCTION data.get_audio_message_by_filename(
+    p_filename VARCHAR
 )
 RETURNS TABLE (
     id INTEGER,
@@ -25,7 +24,6 @@ BEGIN
         am.enrichment,
         am.created_at
     FROM data.audio_message am
-    WHERE am.message_type = p_message_type
-      AND am.status = p_status;
+    WHERE am.filename = p_filename;
 END;
 $$ LANGUAGE plpgsql;
