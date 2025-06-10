@@ -197,3 +197,4 @@ cython_debug/
 # Project
 audio
 transcript
+config/gdrive_service_account.json

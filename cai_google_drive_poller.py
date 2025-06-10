@@ -63,14 +63,15 @@ class GoogleDrivePoller:
             self.download_file(file["id"], file_path)
 
             gdrive_logger.info("Inserting new audio file into database: %s", file_path)
-            self.audio_repo.upsert({
-                "filename": file_path,
-                "transcription": None,
-                "message_type": None,
-                "status": "new",
-                "metadata": {},
-                "enrichment": {}
-            })
+            with self.audio_repo.transaction():
+                self.audio_repo.upsert({
+                    "filename": file_path,
+                    "transcription": None,
+                    "message_type": None,
+                    "status": "new",
+                    "metadata": {},
+                    "enrichment": {}
+                })
 
     def download_file(self, file_id, destination_path):
         gdrive_logger.info("Downloading file ID %s to %s", file_id, destination_path)
