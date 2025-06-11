@@ -73,9 +73,13 @@ DROP TABLE data.audio_message;
 CREATE TABLE data.audio_message (
     id SERIAL PRIMARY KEY,
     filename VARCHAR NOT NULL,
-    transcription TEXT,
     message_type VARCHAR DEFAULT 'unknown', -- top-level for easy querying
     status VARCHAR DEFAULT 'new',           -- processing state
+	audio_file_size_kb INT DEFAULT 0,
+	audio_duration_seconds INT DEFAULT 0,
+    transcription TEXT,
+	transcription_duration_seconds INT DEFAULT 0,
+	transcription_word_count INT DEFAULT 0,
     metadata JSONB DEFAULT '{}',            -- extra fields like timestamps, flags
     enrichment JSONB DEFAULT '{}',          -- results from enrichment steps
     created_at TIMESTAMP DEFAULT NOW(),

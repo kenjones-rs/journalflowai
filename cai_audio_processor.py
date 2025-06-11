@@ -1,3 +1,5 @@
+import os
+import time
 from cai_audio_message_repository import AudioMessageRepository
 
 class AudioProcessor:
@@ -17,17 +19,35 @@ class AudioProcessor:
 
     def process_message(self, message):
         file_path = message['filename']
-        transcription = self.transcriber.transcribe(file_path)
+        normalized_path = file_path.replace("\\", "/")
 
-        # Update only the relevant fields
-        message['transcription'] = transcription
-        message['status'] = 'transcribed'
+        # --- Transcription timing ---
+        start_time = time.time()
+        transcription = self.transcriber.transcribe(normalized_path)
+        transcription_duration = round(time.time() - start_time)
 
-        # remove keys not expected in upsert
-        message.pop('id', None)
-        message.pop('created_at', None)
+        # --- Word count ---
+        word_count = len(transcription.split())
+
+        # --- Upsert all values ---
+        record = {
+            "filename": normalized_path,
+            "message_type": message.get("message_type"),  # preserve if present
+            "status": "transcribed",
+            "audio_file_size_kb": message.get("audio_file_size_kb"),
+            "audio_duration_seconds": message.get("audio_duration_seconds"),
+            "transcription": transcription,
+            "transcription_duration_seconds": transcription_duration,
+            "transcription_word_count": word_count,
+            "metadata": message.get("metadata", {}),
+            "enrichment": message.get("enrichment", {})
+        }
+
+        if "id" in record:
+            del record["id"]  # remove id before upsert if present
+
         with self.audio_repo.transaction():
-            self.audio_repo.upsert(message)
+            self.audio_repo.upsert(record)
 
         # Complete
         #self.audio_repo.update_status(message_id, 'complete')

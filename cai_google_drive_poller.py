@@ -3,6 +3,7 @@
 import os
 import json
 import io
+from pydub.utils import mediainfo
 import logging
 from logging.handlers import RotatingFileHandler
 from google.oauth2 import service_account
@@ -63,13 +64,27 @@ class GoogleDrivePoller:
             file_path = f'{download_dir}/{filename}'
             self.download_file(file["id"], file_path)
 
+            # Normalize file path
+            file_path = os.path.normpath(os.path.join(download_dir, filename)).replace("\\", "/")
+
+            # Calculate file size
+            audio_file_size_kb = round(os.path.getsize(file_path) / 1024)
+
+            # Calculate duration
+            audio_info = mediainfo(file_path)
+            audio_duration_seconds = int(float(audio_info.get("duration", 0)))
+
             gdrive_logger.info("Inserting new audio file into database: %s", file_path)
             with self.audio_repo.transaction():
                 self.audio_repo.upsert({
                     "filename": file_path,
-                    "transcription": None,
-                    "message_type": None,
+                    "message_type": "unknown",
                     "status": "new",
+                    "audio_file_size_kb": audio_file_size_kb,
+                    "audio_duration_seconds": audio_duration_seconds,
+                    "transcription": None,
+                    "transcription_duration_seconds": 0,
+                    "transcription_word_count": 0,
                     "metadata": {},
                     "enrichment": {}
                 })
