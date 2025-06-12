@@ -1,6 +1,7 @@
 from cai_postgres_database import PostgresDatabase
 from cai_transcriber_factory import create_transcriber
 from cai_repository import Repository
+from cai_config_repository import ConfigRepository
 from cai_audio_message_repository import AudioMessageRepository
 from cai_audio_processor import AudioProcessor
 
@@ -16,15 +17,16 @@ postgres = {
 db = PostgresDatabase(postgres)
 
 repo = Repository(db)
+config_repo = ConfigRepository(db)
 audio_repo = AudioMessageRepository(db)
 
 # Fetch default transcriber config
-config = repo.fetch_record("transcriber", filters={"is_default": True}, schema="config")
+config = config_repo.get_transcriber(is_default=True)
 class_name = config[0]["class_name"]
 
 # Instantiate via factory
 transcriber = create_transcriber(class_name)
 
 # Run
-processor = AudioProcessor(audio_repo, transcriber)
+processor = AudioProcessor(config_repo, audio_repo, transcriber)
 processor.run()
