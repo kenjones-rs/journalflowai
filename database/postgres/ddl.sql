@@ -68,7 +68,7 @@ CREATE TABLE config.transcriber (
 );
 
 
--- Data: Main table holding transcripted messages with hybrid schem
+-- Data: Main table holding transcripted messages with hybrid scheme
 DROP TABLE data.audio_message;
 CREATE TABLE data.audio_message (
     id SERIAL PRIMARY KEY,
@@ -89,4 +89,28 @@ CREATE TABLE data.audio_message (
 
 ALTER TABLE data.audio_message
 ADD CONSTRAINT unique_filename UNIQUE (filename);
+
+-- Data: Table holding LLM usage data
+DROP TABLE data.llm_usage;
+CREATE TABLE data.llm_usage (
+    id SERIAL PRIMARY KEY,
+    entity_type VARCHAR NOT NULL,                 -- e.g., 'audio_message'
+    entity_id INT NOT NULL,                       -- foreign key to the specific record
+    model_name VARCHAR NOT NULL,                  -- e.g., 'gpt-4.1'
+    prompt_label VARCHAR NOT NULL,                -- e.g., 'audio_message_metadata'
+    prompt_template TEXT NOT NULL,                -- full template text used
+    response_text TEXT NOT NULL,                  -- LLM response
+    prompt_token_count INT NOT NULL,              -- token usage for prompt
+    response_token_count INT NOT NULL,            -- token usage for response
+    response_duration_seconds INT,                -- time taken for LLM call
+    temperature NUMERIC(3,2),                     -- LLM temperature setting
+    status VARCHAR DEFAULT 'success',             -- success, failure
+    error_message TEXT,                           -- error detail if failure
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Optional performance optimization
+CREATE INDEX idx_llm_usage_entity ON data.llm_usage(entity_type, entity_id);
+
+
 
