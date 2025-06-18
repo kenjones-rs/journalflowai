@@ -2,15 +2,18 @@ import os
 import time
 from cai_config_repository import ConfigRepository
 from cai_audio_message_repository import AudioMessageRepository
+from cai_llm_usage_repository import LLMUsageRepository
+from cai_action_processor import ActionProcessor
 
 class AudioProcessor:
-    def __init__(self, config_repo: ConfigRepository, audio_repo: AudioMessageRepository, transcriber):
+    def __init__(self, config_repo: ConfigRepository, audio_repo: AudioMessageRepository, llm_usage_repo: LLMUsageRepository, transcriber):
         """
         :param audio_repo: An instance of AudioMessageRepository
         :param transcriber: A service that implements transcribe(file_path) -> str
         """
         self.config_repo = config_repo
         self.audio_repo = audio_repo
+        self.llm_usage_repo = llm_usage_repo
         self.transcriber = transcriber
 
     def run(self):
@@ -71,6 +74,8 @@ class AudioProcessor:
 
         # --- Categorization into message_type timing ---
         start_time = time.time()
+        action_processor = ActionProcessor(self.config_repo, self.audio_repo, self.llm_usage_repo)
+        action_processor.execute('llm_audio_message_category', message)
         categorization_duration = round(time.time() - start_time)
 
         # --- Upsert all values ---
