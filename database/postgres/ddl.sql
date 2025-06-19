@@ -18,8 +18,23 @@ CREATE TABLE config.prompt_parameter (
 	prompt_label VARCHAR NOT NULL,             -- e.g., 'message_classification'
     parameter_name VARCHAR NOT NULL,           -- e.g., 'client_name'
     description TEXT,                          -- human-readable explanation
-    is_required BOOLEAN DEFAULT TRUE,             -- is it mandatory for prompt execution?
+    is_required BOOLEAN DEFAULT TRUE,          -- is it mandatory for prompt execution?
     default_value TEXT                         -- fallback if not supplied at runtime
+);
+
+DROP TABLE config.prompt_output;
+CREATE TABLE config.prompt_output (
+    id SERIAL PRIMARY KEY,
+    prompt_label VARCHAR NOT NULL,
+    output_key VARCHAR NOT NULL,        -- key in the LLM JSON response
+    schema_name VARCHAR NOT NULL,       -- e.g., 'data', 'config'
+    table_name VARCHAR NOT NULL,        -- target table
+	id_column VARCHAR NOT NULL,         -- target table id column
+    column_name VARCHAR NOT NULL,       -- column to write into
+    column_type VARCHAR NOT NULL CHECK (column_type IN ('column', 'jsonb')),
+    json_key VARCHAR,                   -- only used if column_type is 'jsonb'
+    mode VARCHAR NOT NULL CHECK (mode IN ('add', 'replace')), -- how to apply update to jsonb
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Config: Master list of possible actions (AI or Python)
@@ -77,9 +92,9 @@ CREATE TABLE data.audio_message (
     status VARCHAR DEFAULT 'new',           -- processing state
 	audio_file_size_kb INT DEFAULT 0,
 	audio_duration_seconds INT DEFAULT 0,
-    transcription TEXT,
+    transcript TEXT,
 	transcription_duration_seconds INT DEFAULT 0,
-	transcription_word_count INT DEFAULT 0,
+	transcript_word_count INT DEFAULT 0,
     metadata JSONB DEFAULT '{}',            -- extra fields like timestamps, flags
     enrichment JSONB DEFAULT '{}',          -- results from enrichment steps
     created_at TIMESTAMP DEFAULT NOW(),

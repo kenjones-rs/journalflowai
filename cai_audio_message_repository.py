@@ -31,7 +31,11 @@ class AudioMessageRepository(Repository):
 
     def update_status(self, message_id, new_status):
         audio_logger.info(f"Updating status of audio_message id={message_id} to '{new_status}'")
-        self.db.execute_query(
-            "UPDATE data.audio_message SET status = %s WHERE id = %s",
-            (new_status, message_id)
+        self.update_column_value(
+            schema="data",
+            table="audio_message",
+            id_column="id",
+            id_value=message_id,
+            column_name="status",
+            column_value=new_status
         )

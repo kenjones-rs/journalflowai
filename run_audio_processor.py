@@ -34,3 +34,4 @@ if __name__ == "__main__":
     # Run
     processor = AudioProcessor(config_repo, audio_repo, llm_usage_repo, transcriber)
     processor.run()
+

@@ -111,6 +111,42 @@ class Repository:
             )
             raise
 
+    def update_column_value(
+        self,
+        schema: str,
+        table: str,
+        id_column: str,
+        id_value,
+        column_name: str,
+        column_value
+    ):
+        """
+        Updates a simple column (non-JSONB) in a PostgreSQL table.
+
+        :param schema: Schema name (e.g., 'data')
+        :param table: Table name (e.g., 'audio_message')
+        :param id_column: Primary key column name (e.g., 'id')
+        :param id_value: Primary key value
+        :param column_name: Column name to update (non-JSONB)
+        :param column_value: New value to set
+        """
+        query = f"""
+            UPDATE {schema}.{table}
+            SET {column_name} = %s
+            WHERE {id_column} = %s
+        """
+        try:
+            self.db.execute_query(query, (column_value, id_value))
+            repo_logger.info(
+                f"Updated {schema}.{table}.{column_name} to '{column_value}' for {id_column} = {id_value}"
+            )
+        except Exception as e:
+            repo_logger.error(
+                f"Failed to update {schema}.{table}.{column_name} for {id_column} = {id_value} to '{column_value}'. Error: {e}",
+                exc_info=True
+            )
+            raise
+
 
     def fetch_record(self, table, filters, schema="scratch"):
         function_name = f"{schema}.get_{table}"
@@ -156,26 +192,12 @@ if __name__ == "__main__":
     db = PostgresDatabase(postgres)
     repo = Repository(db)
 
-
-    from cai_google_transcriber import GoogleTranscriber
-    from cai_openai_transcriber import WhisperTranscriber
-
-    TRANSCRIBER_REGISTRY = {
-        "GoogleTranscriber": GoogleTranscriber,
-        "WhisperTranscriber": WhisperTranscriber,
-    }
-
-    filters = {'is_default': True}
-    result = repo.fetch_record(table='transcriber', filters=filters, schema='config')
-
-    if not result:
-        raise ValueError("No default transcriber found in config.transcriber")
-
-    class_name = result[0]['class_name']
-    print(class_name)
-
-    TranscriberClass = TRANSCRIBER_REGISTRY[class_name]
-    transcriber_instance = TranscriberClass()
-    transcript = transcriber_instance.transcribe('./audio/Ken Jones-20250526-163600.mp3')
-    print(transcript)
-
+    with repo.transaction():
+        repo.update_column_value(
+            schema="data",
+            table="audio_message",
+            id_column="id",
+            id_value=75,
+            column_name="message_type",
+            column_value="unknown"
+        )
