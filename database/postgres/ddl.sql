@@ -8,6 +8,7 @@ CREATE TABLE config.prompt (
     id SERIAL PRIMARY KEY,
     prompt_label VARCHAR NOT NULL,          -- e.g., 'message_classification'
     prompt_template TEXT NOT NULL,
+	temperature FLOAT NOT NULL DEFAULT 0.0,
     UNIQUE(prompt_label)
 );
 
@@ -17,6 +18,7 @@ CREATE TABLE config.prompt_parameter (
     id SERIAL PRIMARY KEY,
 	prompt_label VARCHAR NOT NULL,             -- e.g., 'message_classification'
     parameter_name VARCHAR NOT NULL,           -- e.g., 'client_name'
+	max_length INT NOT NULL DEFAULT 500,
     description TEXT,                          -- human-readable explanation
     is_required BOOLEAN DEFAULT TRUE,          -- is it mandatory for prompt execution?
     default_value TEXT                         -- fallback if not supplied at runtime

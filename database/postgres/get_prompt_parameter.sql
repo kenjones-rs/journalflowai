@@ -5,6 +5,7 @@ RETURNS TABLE (
     id INTEGER,
     prompt_label VARCHAR,
     parameter_name VARCHAR,
+    max_length INT,
     description TEXT,
     is_required BOOLEAN,
     default_value TEXT
@@ -16,6 +17,7 @@ BEGIN
         pp.id,
         pp.prompt_label,
         pp.parameter_name,
+        pp.max_length,
         pp.description,
         pp.is_required,
         pp.default_value

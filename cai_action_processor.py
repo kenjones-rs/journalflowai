@@ -48,8 +48,8 @@ class ActionProcessor:
             raise ValueError(f"No prompt template found for label='{record['prompt_label']}'")
         
         prompt_template = prompt_record[0]["prompt_template"]
-        #temperature = prompt_record[0]["temperature"]
-        temperature = 0.0
+        temperature = prompt_record[0]["temperature"]
+        #temperature = 0.0
         
         try:
             rendered_prompt = prompt_template.format(**context)

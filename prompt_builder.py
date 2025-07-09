@@ -17,13 +17,17 @@ class PromptBuilder:
             name = p["parameter_name"]
             is_required = p["is_required"]
             default = p["default_value"]
+            max_length = p.get("max_length", 500)
 
             if name in param_values:
-                inputs[name] = param_values[name]
+                value = str(param_values[name])[:max_length]
+                inputs[name] = value
             elif default is not None:
-                inputs[name] = default
+                value = str(default)[:max_length]
+                inputs[name] = value
             elif is_required:
                 raise ValueError(f"Missing required parameter: {name}")
 
         # Format the template with values
         return prompt_template.format(**inputs)
+
